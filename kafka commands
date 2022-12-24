@@ -1,0 +1,98 @@
+Quickstart commands:
+https://kafka.apache.org/28/documentation.html#quickstart
+
+
+Start the zookeeper instance:
+Run the following commands for starting zookeeper::
+cd Downloads/kafka_2.13-2.8.1
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+Run the following commands for starting the broker
+cd Downloads/kafka_2.13-2.8.1
+bin/kafka-server-start.sh config/server.properties 
+
+
+To create new instance of brokers from local machine, we need to create as many server.properties files
+The three variables in this properties file  need to be updated for every broker::
+broker.id=
+port=
+log.dir=
+
+Querying the zookeeper for finding all the brokers
+cd /usr/local/bin/kafka_2.11-1.1.0/
+bin/zookeeper-shell.sh localhost:2181
+ls /
+ls /brokers/ids
+get /brokers/ids/0 <--- this will give the broker details like host/port of the broker
+
+eg:
+Last login: Sun Aug  8 09:43:14 on ttys004
+sonias-MacBook-Air:kafka_2.11-1.1.0 soniamartis$ bin/zookeeper-shell.sh localhost:2181
+Connecting to localhost:2181
+Welcome to ZooKeeper!
+JLine support is disabled
+
+WATCHER::
+
+WatchedEvent state:SyncConnected type:None path:null
+ls /
+[cluster, controller_epoch, controller, brokers, zookeeper, admin, isr_change_notification, consumers, log_dir_event_notification, latest_producer_id_block, config]
+ls /brokers/ids
+[0]
+get /brokers/ids/0
+{"listener_security_protocol_map":{"PLAINTEXT":"PLAINTEXT"},"endpoints":["PLAINTEXT://192.168.0.3:9092"],"jmx_port":-1,"host":"192.168.0.3","timestamp":"1628401843599","port":9092,"version":4}
+cZxid = 0x72
+ctime = Sun Aug 08 11:20:43 IST 2021
+mZxid = 0x72
+mtime = Sun Aug 08 11:20:43 IST 2021
+pZxid = 0x72
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x17b23eadb77000c
+dataLength = 192
+numChildren = 0
+
+
+NOTE: We do not use the --zookeeper command anymore, it is replaced by the --bootstrap-servers commands
+---
+Topic based commands
+---
+List topics:
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+
+Create topics:
+bin/kafka-topics.sh --create --topic topic2 --replication-factor 1 \
+  --partitions 2  --bootstrap-server localhost:9092
+
+Describe topics:
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic my_topic
+
+
+---
+Producer based commands
+---
+Write events into topic
+```
+bin/kafka-console-producer.sh --topic my_topic --bootstrap-server localhost:9092
+```
+
+
+
+
+
+
+---
+Consumer based commands
+---
+Consume events from topic
+```
+bin/kafka-console-consumer.sh --topic my_topic --from-beginning --bootstrap-server localhost:9092
+```
+
+
+
+---
+Consumer group based commands
+---
+bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group all_topics
