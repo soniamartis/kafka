@@ -27,6 +27,7 @@ Fund transfer will read the transfer message($10, Alice, Bob) from transfer topi
 It will write 2 messages to the balance-update topic (alice,debit($10)) and (bob,credit($10)) to same or different partitions of balance update
 It will add the consumer offset  of the transfer message to the internally managed offsets-topic
 
+![Screenshot 2022-09-16 at 9 11 32 AM](https://user-images.githubusercontent.com/12456295/209444268-deb8f1ff-7336-4c0d-9d04-f23f3baf7032.png)
 
 
 What can go wrong?
