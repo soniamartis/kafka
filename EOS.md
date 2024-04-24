@@ -3,29 +3,28 @@ https://www.confluent.io/blog/transactions-apache-kafka/
 
 
 Earlier kafka provided the following delivery guarantee:
-Atleast once, in order delivery per partition
+Atleast once, in order delivery per partition.
 As kafka is built on commodity hardware, there is a chance that something fails , leading to duplicate messages on topics
 
 Basic flow while sending:
-Producer sends the message to the leader of the partition
-Leader writes it to the log
-Leader sends an ack back to the producer
+1. Producer sends the message to the leader of the partition
+2. Leader writes it to the log
+3. Leader sends an ack back to the producer
 
 Suppose this scenario:
-Producer sends message to leader
-leader appends it to log
-Some failure occurs in the cluster and the leader could no send an ack back to producer(maybe the isr condition was not satisfied due to some partition failure etc)
-
-Now, the producer will retry and send the message again
-The leader will blindly append it to the log
-Producer retries can lead to duplicate messages
+1. Producer sends message to leader
+2. leader appends it to log
+3. Some failure occurs in the cluster and the leader could no send an ack back to producer(maybe the isr condition was not satisfied due to some partition failure etc)
+4. Now, the producer will retry and send the message again
+5. The leader will blindly append it to the log
+6. Producer retries can lead to duplicate messages
 
 Why we need exactly once?
 Typical transfers app which uses read-process-write mechanism
-Suppose Alice transfers $10 to Bob, the flow will be like this:
-Fund transfer will read the transfer message($10, Alice, Bob) from transfer topic
-It will write 2 messages to the balance-update topic (alice,debit($10)) and (bob,credit($10)) to same or different partitions of balance update
-It will add the consumer offset  of the transfer message to the internally managed offsets-topic
+1. Suppose Alice transfers $10 to Bob, the flow will be like this:
+2. Fund transfer will read the transfer message($10, Alice, Bob) from transfer topic
+3. It will write 2 messages to the balance-update topic (alice,debit($10)) and (bob,credit($10)) to same or different partitions of balance update
+4. It will add the consumer offset  of the transfer message to the internally managed offsets-topic
 
 ![Screenshot 2022-09-16 at 9 11 32 AM](https://user-images.githubusercontent.com/12456295/209444268-deb8f1ff-7336-4c0d-9d04-f23f3baf7032.png)
 
@@ -49,19 +48,13 @@ Sequence number starts with 0
 For every successful acknowledgement from the leader, the sequence number is incremented
 The pid is assigned by the broker, every new producer will get assigned a new pid
 
-Suppose this is the very first message sent by the producer
-
-The leader appends it to the log
-
-Leader sends an ack to the producer
-
-As producer got a successful ack, it will bump the sequence number by 1 and will send the next message
-
-The next message gets written to the log, but now something failed while sending ack
-
-Since the producer did not get an ack, it is going to send the same message again with the same sequence number.
-A validation will run at the broker which will check that it just appended a message with seq no 1 and was expecting a seq no 2, so it just return an ack to the producer but will not append the message
-
+1. Suppose this is the very first message sent by the producer
+2. The leader appends it to the log
+3. Leader sends an ack to the producer
+4. As producer got a successful ack, it will bump the sequence number by 1 and will send the next message
+5. The next message gets written to the log, but now something failed while sending ack
+6. Since the producer did not get an ack, it is going to send the same message again with the same sequence number.
+7. A validation will run at the broker which will check that it just appended a message with seq no 1 and was expecting a seq no 2, so it just return an ack to the producer but will not append the message
 
 
 Sequence numbers and producer ids:
