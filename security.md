@@ -13,7 +13,7 @@
 - broker needs to verify that producer has the permission to write to topic
 - same applies to consumer, does it have permissions to read from topic
 
- ## Authentication basics
+ ## Authentication
  - Authentication identifies clients to brokers, brokers to brokers and brokers to zookeeper
 
  ### KafkaPrincipal
@@ -53,7 +53,7 @@ bootstrap.servers=broker1.example.com:9092,broker2.example.com:9092
 #### SSL
 - When SSL is enabled for a kafka listener, all traffic on that channel will be encrypted with TLS
 - When client opens connection with broker, it verfies the broker certificate to confirm broker identity
-- the broker may also need to authenticate the client, so it will need client;s certificate, This is called mTLS
+- the broker may also need to authenticate the client, so it will need client's certificate, This is called mTLS. (if all u want to d in encrypt and not check client certs, then set ssl.client.auth=none on broker)
 - Since this mechanims uses certificates, we will have to generate certificates and periodically update them, before they expire to avoid TLS handshake failures
 - Similar mechanism applies even to broker-to-broker authentication
 
@@ -82,8 +82,32 @@ bootstrap.servers=broker1.example.com:9092,broker2.example.com:9092
 - When we create ACLS using kafka-acl command, they are saved in zookeeper and then cached in memory in every broker to enable fast lookups when authorizing requests
 - Kafka uses a server plugin known as authorizer to apply ACLs to requests. An authorizer allows a requested action if there is atleast one 'Allow ACL' that matches the action and no explicit 'Deny ACL'
 
-
 ## Encryption
+
+### Places to implement encryption
+- client to broker
+- broker to broker
+- broker to zookeeper
+
+## Encryption strategies
+- Encrypt data in transit
+- Encrypt data at rest
+- E2E encryption
+
+### Encrypt data in transit
+- Out-of-the-box, kafka doesnt use encryption, but it can be enabled by using security.protocol of ssl/sasl_ssl in order to TLS encrypt data in transit
+- If we just want to encrypt data in transit and do not want broker to check client certs, then set ssl.client.auth=none on brokers
+- Enabling TLS impacts performance as it adds cpu overhead for data encryption/decryption
+
+### Encrypt data at rest
+- Kafka does not provide any support for encrypting data at rest
+- Public cloud providers provide whole volume encryption eg: AWS EBS volumes can be encrypted with keys from AWS KMS
+
+### E2E encryption
+- Use a key mgmt service in kafka serializer/deseriliazer while sending/receiving messages, so that the broker will never see the unencrypted contents of messages
+- This way we can prevent messages from being displayed in broker heap dumps and logs
+
+![image](https://github.com/soniamartis/kafka/assets/12456295/63982b67-6092-4b4e-aadc-a3eea7842735)
 
 
 
@@ -114,3 +138,6 @@ sasl.client.callback.handler.class=software.amazon.msk.auth.iam.IAMClientCallbac
             ]
         }
 ```
+
+
+
