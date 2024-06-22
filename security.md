@@ -1,6 +1,9 @@
 # Kafka Security
 
-Adding security to a system comes with a performance cost, notably the cpu overhead of encrypting data
+- Adding security to a system comes with a performance cost, notably the cpu overhead of encrypting data
+- Authn
+- Authz
+- Encryption
 
 ## What places of kafka need to secured:
 - broker authenticates the client to make sure the message is coming from the configured producer
@@ -68,9 +71,9 @@ bootstrap.servers=broker1.example.com:9092,broker2.example.com:9092
 
  ## Authorization
 
-- Deterimines what an entity is permitted to do on the system once the entity has been authenticated
+- Determines what an entity is permitted to do on the system once the entity has been authenticated
 - In kafka, we configure which client has permissions to which resurces and carry out actions using ACLs(access control lists )
-- KafkaPrincipal contains user info and acl then configures whether that user has permsision to perform a certain action on a resource
+- KafkaPrincipal contains user info and acl then configures whether that user has permission to perform a certain action on a resource
 - KafkaPrincipal: (User:Alice)
 - Resource type and name: (topic:customer)
 - Permission type: (allow/deny)
@@ -79,6 +82,8 @@ bootstrap.servers=broker1.example.com:9092,broker2.example.com:9092
 - When we create ACLS using kafka-acl command, they are saved in zookeeper and then cached in memory in every broker to enable fast lookups when authorizing requests
 - Kafka uses a server plugin known as authorizer to apply ACLs to requests. An authorizer allows a requested action if there is atleast one 'Allow ACL' that matches the action and no explicit 'Deny ACL'
 
+
+## Encryption
 
 
 
