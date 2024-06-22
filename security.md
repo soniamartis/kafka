@@ -42,5 +42,17 @@ bootstrap.servers=broker1.example.com:9092,broker2.example.com:9092
   - PLAINTEXT (not secure)
   - SASL_PLAINTEXT (not secure)
   - SSL (secure)
-  - SASL_SSL (secure) 
+  - SASL_SSL (secure)
+ 
+### Kafka Authentication with SSL and SASL_SSL
+
+#### SSL
+- When SSL is enabled for a kafka listener, all traffic on that channel will be encrypted with TLS
+- When client opens connection with broker, it verfies the broker certificate to confirm broker identity
+- the broker may also need to authenticate the client, so it will need client;s certificate, This is called mTLS
+- Since this mechanims uses certificates, we will have to generate certificates and periodically update them, before they expire to avoid TLS handshake failures
+- Similar mechanism applies even to broker-to-broker authentication
+
+
+
 
