@@ -24,3 +24,14 @@ https://developer.confluent.io/courses/architecture/broker/
   - The network thread then picks the response and sends it to the socket send buffer before processing the next response from that client
  
   ![Screenshot 2024-08-17 at 9 42 53 AM](https://github.com/user-attachments/assets/a662c67d-0d12-4dcf-9945-5b89cfd06b34)
+
+- Kafka Consumer client request flow
+  - Same as above to a very good extent
+  - Consumer's request arrives on socket receive buffer
+  - Network thread converts it to a fetc request and put's it in request queue
+  - It is picked by one of the I/O threads that fecthes the data based on request offset by referring the .index file
+  - If the offset has no data, and if the broker returns, the client will keep bombarding the broker for data at that offset
+  - So we can enable a request config based on either max wait time/ response size, till this criteria is met, the request will be in purgatory map
+  - Once it is fulfilled, the response will be returned
+ 
+  ![Screenshot 2024-08-17 at 10 19 25 AM](https://github.com/user-attachments/assets/377bf1da-f3a8-46ef-8b72-7457f96fc466)
