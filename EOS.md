@@ -1,8 +1,9 @@
 Article:
-https://www.confluent.io/blog/transactions-apache-kafka/
+- https://www.confluent.io/blog/transactions-apache-kafka/
+- https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/
 
 
-Earlier kafka provided the following delivery guarantee:
+Ea rlier kafka provided the following delivery guarantee:
 Atleast once, in order delivery per partition.
 As kafka is built on commodity hardware, there is a chance that something fails , leading to duplicate messages on topics
 
