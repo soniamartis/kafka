@@ -3,8 +3,7 @@ Article:
 - https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/
 
 
-Ea rlier kafka provided the following delivery guarantee:
-Atleast once, in order delivery per partition.
+Earlier kafka provided delivery guarantee of Atleast once, in order delivery per partition.
 As kafka is built on commodity hardware, there is a chance that something fails , leading to duplicate messages on topics
 
 Basic flow while sending:
@@ -12,10 +11,10 @@ Basic flow while sending:
 2. Leader writes it to the log
 3. Leader sends an ack back to the producer
 
-Suppose this scenario:
+Consider this scenario:
 1. Producer sends message to leader
 2. leader appends it to log
-3. Some failure occurs in the cluster and the leader could no send an ack back to producer(maybe the isr condition was not satisfied due to some partition failure etc)
+3. Some failure occurs in the cluster and the leader could not send an ack back to producer(maybe the isr condition was not satisfied due to some partition failure etc)
 4. Now, the producer will retry and send the message again
 5. The leader will blindly append it to the log
 6. Producer retries can lead to duplicate messages
@@ -25,7 +24,7 @@ Typical transfers app which uses read-process-write mechanism
 1. Suppose Alice transfers $10 to Bob, the flow will be like this:
 2. Fund transfer will read the transfer message($10, Alice, Bob) from transfer topic
 3. It will write 2 messages to the balance-update topic (alice,debit($10)) and (bob,credit($10)) to same or different partitions of balance update
-4. It will add the consumer offset  of the transfer message to the internally managed offsets-topic
+4. It will add the consumer offset of the transfer message to the internally managed offsets-topic
 
 ![Screenshot 2022-09-16 at 9 11 32 AM](https://user-images.githubusercontent.com/12456295/209444268-deb8f1ff-7336-4c0d-9d04-f23f3baf7032.png)
 
@@ -36,10 +35,10 @@ In this case, when we restart the fund transfer process, it will again re-proces
 
 And many other scenarios....
 
-Whats new?
-Exactly once in-order delivery per partition
-Atomic writes across multiple partitions
-Performance considerations
+### Whats new?
+- Exactly once in-order delivery per partition
+- Atomic writes across multiple partitions
+- Performance considerations
 
 ---
 The idempotent producer - Exactly once delivery per partition
