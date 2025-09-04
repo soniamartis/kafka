@@ -1,17 +1,19 @@
-Article:
+# EOS (Exactly-once semantics)
+
+## Articles:
 - https://www.confluent.io/blog/transactions-apache-kafka/
 - https://www.confluent.io/blog/exactly-once-semantics-are-possible-heres-how-apache-kafka-does-it/
 
+### Issues before EOS was introduced
+- Earlier kafka provided delivery guarantee of Atleast once, in order delivery per partition.
+- As kafka is built on commodity hardware, there is a chance that if something fails, there will be dupe messages in topic
 
-Earlier kafka provided delivery guarantee of Atleast once, in order delivery per partition.
-As kafka is built on commodity hardware, there is a chance that something fails , leading to duplicate messages on topics
-
-Basic flow while sending:
+#### Producer flow
 1. Producer sends the message to the leader of the partition
 2. Leader writes it to the log
 3. Leader sends an ack back to the producer
 
-Consider this scenario:
+#### Dupe message scenario
 1. Producer sends message to leader
 2. leader appends it to log
 3. Some failure occurs in the cluster and the leader could not send an ack back to producer(maybe the isr condition was not satisfied due to some partition failure etc)
