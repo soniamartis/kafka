@@ -72,6 +72,47 @@ Reduces the complexity of the systems from O(n^2) to O(n)
 
 - For DR(disaster recovery)
 
+
+https://www.youtube.com/watch?v=UNUz1-msbOM
+Kafka is capable of moving large amount of data in short period of time
+The two factors that make kafka fast are:
+1. sequential access pattern for read/writes
+2. zero copy write
+
+Sequential access:
+Kafka uses the append-only log as its primary data structure
+An append-only log adds data to the end of the file
+This access pattern is sequential
+Sequential write can reach 100MB/s whereas random writes can reach only upto a few 100 KB/s
+Using HDD has its cost advantage too, compared to SSD, HDD comes at 1/3rd the price and with abt 3 times the capacity
+The HDD is very efficient at doing sequential reads/writes as it just has to move its arm to the next sequential location instead of a random read/write pattern
+The sequential access pattern is orders of magnitudes faster than the random access pattern
+
+
+Zero copy writes:
+Kafka moves a lot of data from network to disk and disk to network, so it is important to ensure that this data transfer is efficient
+It is critically important to eliminate excess copy when moving pages of data between the disk and the network
+
+Modern unix operating systems are highly optimised for transferring data between disk and network w/o excess data copy
+
+When zero copy is not used:(the data on kafka broker partion, is first loaded into the kafka broker's jvm and then copied to the NIC buffer)
+Data is copied from the disc to OS cache
+It is then copied from OS cache to app buffer
+then copied from app buffer to socket buffer
+and then finally from socket buffer to the NIC buffer
+and then sent to the consumer
+
+
+With zero copy:
+The data is directly copied from the OS cache into the NIC buffer using the sendfile system call
+On modern network card, this optimised copy is done with DMA(Direct Memory Access)
+When DMA is used, the cpu is not involved, making it more efficient
+
+
+
+
+
+
 ## TODO
 
 - schema registry
