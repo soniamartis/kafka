@@ -11,5 +11,5 @@
 - This property if not set correctly, means that your producer might not be able to send the messages to the partition at all
 - Min-in0sync replicas = N - X
   - N : replication factor
-  - X: : The maximum number of broker failures you want the topic to tolerate for writes.
+  - X : The maximum number of broker failures you want the topic to tolerate for writes.
 - This property is used to determine the number of replicas that must ack the message when acks = all
