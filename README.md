@@ -59,8 +59,7 @@ Reduces the complexity of the systems from O(n^2) to O(n)
 - Within a cluster of brokers, one broker will function as the cluster conrtoller
 - It is responsible for admin operations like assigning partitions to brokers and monitoring for broker failures
 - A part is owned by single broker in the cluster called as leader of the part
-- A replicated partition is assigned to additional brokers, called followers of the partition. Replication provides redundancy of messages in the partition, such that one of the followers can take o[...]
-- is a broker failure. All producers must connect to the leader in order to publish messages, but consumers may fetch from either the leader or one of the followers.
+- A replicated partition is assigned to additional brokers, called followers of the partition. Replication provides redundancy of messages in the partition, such that one of the followers can take over in case of a broker failure. All producers must connect to the leader in order to publish messages, but consumers may fetch from either the leader or one of the followers.
 
 ## Retention
 
@@ -72,46 +71,44 @@ Reduces the complexity of the systems from O(n^2) to O(n)
 
 - For DR(disaster recovery)
 
+## Why Kafka is Fast
 
-https://www.youtube.com/watch?v=UNUz1-msbOM
-Kafka is capable of moving large amount of data in short period of time
-The two factors that make kafka fast are:
-1. sequential access pattern for read/writes
-2. zero copy write
+Kafka is capable of moving large amounts of data in a short period of time. Two factors make Kafka fast:
 
-Sequential access:
-Kafka uses the append-only log as its primary data structure
-An append-only log adds data to the end of the file
-This access pattern is sequential
-Sequential write can reach 100MB/s whereas random writes can reach only upto a few 100 KB/s
-Using HDD has its cost advantage too, compared to SSD, HDD comes at 1/3rd the price and with abt 3 times the capacity
-The HDD is very efficient at doing sequential reads/writes as it just has to move its arm to the next sequential location instead of a random read/write pattern
-The sequential access pattern is orders of magnitudes faster than the random access pattern
+1. **Sequential access pattern for read/writes**
+2. **Zero copy write**
 
+### Sequential Access
 
-Zero copy writes:
-Kafka moves a lot of data from network to disk and disk to network, so it is important to ensure that this data transfer is efficient
-It is critically important to eliminate excess copy when moving pages of data between the disk and the network
+Kafka uses the append-only log as its primary data structure. An append-only log adds data to the end of the file, which creates a sequential access pattern.
 
-Modern unix operating systems are highly optimised for transferring data between disk and network w/o excess data copy
+- Sequential writes can reach **100MB/s** whereas random writes can reach only up to a few **100 KB/s**
+- HDDs have a cost advantage over SSDs—HDDs cost 1/3rd the price with 3x the capacity
+- HDDs are very efficient at sequential reads/writes—the arm only needs to move to the next sequential location instead of performing random read/write operations
+- Sequential access patterns are orders of magnitude faster than random access patterns
 
-When zero copy is not used:(the data on kafka broker partion, is first loaded into the kafka broker's jvm and then copied to the NIC buffer)
-Data is copied from the disc to OS cache
-It is then copied from OS cache to app buffer
-then copied from app buffer to socket buffer
-and then finally from socket buffer to the NIC buffer
-and then sent to the consumer
+### Zero Copy Writes
 
+Kafka moves a lot of data from network to disk and disk to network, so it's important to ensure that this data transfer is efficient. It's critically important to eliminate excess copies when moving pages of data between the disk and the network.
 
-With zero copy:
-The data is directly copied from the OS cache into the NIC buffer using the sendfile system call
-On modern network card, this optimised copy is done with DMA(Direct Memory Access)
-When DMA is used, the cpu is not involved, making it more efficient
+Modern Unix operating systems are highly optimized for transferring data between disk and network without excess data copying.
 
+#### Without Zero Copy (traditional approach):
 
+Data on a Kafka broker partition goes through multiple copies:
+1. Data is copied from disk to OS cache
+2. Copied from OS cache to app buffer
+3. Copied from app buffer to socket buffer
+4. Finally copied from socket buffer to the NIC buffer
+5. Sent to the consumer
 
+#### With Zero Copy:
 
+- Data is directly copied from the OS cache into the NIC buffer using the `sendfile` system call
+- On modern network cards, this optimized copy is done with **DMA (Direct Memory Access)**
+- When DMA is used, the CPU is not involved, making the transfer more efficient
 
+**Reference**: [How Apache Kafka Works on YouTube](https://www.youtube.com/watch?v=UNUz1-msbOM)
 
 ## TODO
 
