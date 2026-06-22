@@ -44,3 +44,18 @@
 - The .timeindex file contains a mapping of timestamp to the relative offset from base offset
 - .index serves as an indirection from timestamp to offset to address in the log file
 - .timeindex is also used to determine the retention of the messages within the segment
+- Each entry is 12 bytes in size, 8 bytes for timestamp and 4 bytes for offset
+
+---
+### Log Segment Rolling
+- A segment is rolled based on the 2 conditions occuring in time and size, whichever happens first:
+  - `log.segment.bytes`: the file size exceeds this value, default is 1 GB
+  - `log.roll.hours` or `log.roll.ms` : when the creation time for first record in the segment has elapsed this interval
+  - This is not to be confused with log retention, this is simply log rolling
+  - There is another condition, if the .index or .timeindex becomes full, the segment is rolled too
+ 
+---
+
+### Log Retention
+- A segment can be deleted only when it is closed, an active segment is not deleted, even if it meets the criteria for deletion
+- 
