@@ -1,6 +1,6 @@
 # Kafka Topics Storage
 
-
+### Storage layout for a partition in broker
 ```
 ├── __events-0
 │   ├── 00000000000000000000.index
@@ -21,3 +21,7 @@
 ### How indexing works
 <img width="665" height="253" alt="image" src="https://github.com/user-attachments/assets/708229c0-d10e-4d00-9e01-469da65a0451" />
   
+- the index file doesnt store all offsets and their message's byte offset, even if the log file contains messages from offsets 0 to N
+- It stores only a few offsets based on the property: `log.index.interval.bytes`  ie. it adds an entry in the index file after every 4096 bytes that are written to the .log file
+- If this value is decreased, we will have more entries, which could make search more faster, if this value is increased, we will have lesser entries, that will slow down the search
+- Each entry in the index file is 8 bytes in size: 4 bytes for the relative offset from base offset and 4 bytes for the byte offset of the record in .log file 
