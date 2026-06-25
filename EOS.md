@@ -32,10 +32,10 @@ Typical transfers app which uses read-process-write mechanism
 
 
 What can go wrong?
-Crash occurs while committing the transfer message offset to the offsets topic
-In this case, when we restart the fund transfer process, it will again re-process the transfer message and create another debit-credit entry pairs for Alice and Bob
+- Crash occurs while committing the transfer message offset to the offsets topic
+- In this case, when we restart the fund transfer process, it will again re-process the transfer message and create another debit-credit entry pairs for Alice and Bob
 
-And many other scenarios....
+- And many other scenarios....
 
 ### Whats new?
 - Exactly once in-order delivery per partition
@@ -45,27 +45,46 @@ And many other scenarios....
 ---
 The idempotent producer - Exactly once delivery per partition
 ---
-There is a sequence number and a Producer ID(pid)
-Sequence number starts with 0
-For every successful acknowledgement from the leader, the sequence number is incremented
-The pid is assigned by the broker, every new producer will get assigned a new pid
+- There is a sequence number and a Producer ID(pid)
+- Sequence number starts with 0
+- For every successful acknowledgement from the leader, the sequence number is incremented
+- The pid is assigned by the broker, every new producer will get assigned a new pid
 
 1. Suppose this is the very first message sent by the producer
-2. The leader appends it to the log
-3. Leader sends an ack to the producer
-4. As producer got a successful ack, it will bump the sequence number by 1 and will send the next message
-5. The next message gets written to the log, but now something failed while sending ack
-6. Since the producer did not get an ack, it is going to send the same message again with the same sequence number.
-7. A validation will run at the broker which will check that it just appended a message with seq no 1 and was expecting a seq no 2, so it just return an ack to the producer but will not append the message
+ <img width="1229" height="450" alt="Screenshot 2022-09-16 at 9 29 25 AM" src="https://github.com/user-attachments/assets/375273bf-33c1-4b13-8c78-50f4fb171fda" />
+  
+3. The leader appends it to the log
+<img width="1189" height="335" alt="Screenshot 2022-09-16 at 9 30 24 AM" src="https://github.com/user-attachments/assets/6cffd807-40c0-4c7f-898e-7a270afdc45e" />
+
+5. Leader sends an ack to the producer
+<img width="1216" height="232" alt="Screenshot 2022-09-16 at 9 31 12 AM" src="https://github.com/user-attachments/assets/1526a777-9742-4627-ae77-74919b1c4e6e" />
+
+7. As producer got a successful ack, it will bump the sequence number by 1 and will send the next message
+<img width="1206" height="223" alt="Screenshot 2022-09-16 at 9 32 20 AM" src="https://github.com/user-attachments/assets/a884555a-2e61-4a1e-bb8e-a51776b4dcf4" />
+  
+9. The next message gets written to the log, but now something failed while sending ack
+ <img width="1214" height="260" alt="Screenshot 2022-09-16 at 9 32 56 AM" src="https://github.com/user-attachments/assets/68dff807-0ba5-4b43-a6ca-c37bfe1326ec" />
+  
+11. Since the producer did not get an ack, it is going to send the same message again with the same sequence number.
+12. A validation will run at the broker which will check that it just appended a message with seq no 1 and was expecting a seq no 2, so it just return an ack to the producer but will not append the message
+<img width="1192" height="247" alt="Screenshot 2022-09-16 at 9 36 39 AM" src="https://github.com/user-attachments/assets/c974c58a-49c7-4c07-b491-97e8a04288ec" />
+    
 
 
-Sequence numbers and producer ids:
-enable de-dupe
-are in the log
+- Sequence numbers and producer ids:
+   - enable de-dupe
+   - are in the log
+- Hence de-dupe works transparently across leader changes
+- Will not de-dupe application level resends as every send has its own sequence number
+- Works transparently - no API changes
 
-Hence de-dupe works transparently across leader changes
-Will not de-dup application level resends as every send has its own sequence number
-Works transparently - no API changes
+### My analogy
+- This is comparable to the idempotency key concept used in apis
+- Suppose, user is boooking a room, they will first call the book-room api with an idempotency-key
+- Say, the server successfully processed the request, but there was a failure in getting back a response due to network issues
+- In this case, user will again call book room, this time round, the server will recognize that it has processed this request, and will simply return "Room already booked by user"
+- SeqId in kafka works like this idempotency-key
+- Now, in the absence of the producerId, it will be a huge architectural effort to generate a unique seqId across all producers in the cluster, hence, kafka simply defines a cluster-wise unique producerId, and then use monotonically increasing sequenceIds, instead of producers generating globally unique sequenceIds
 
 ---
 Multi-partition atomic writes
