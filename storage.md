@@ -57,5 +57,13 @@
 ---
 
 ### Log Retention
+
+<img width="1382" height="532" alt="image" src="https://github.com/user-attachments/assets/808c69b0-3805-4c82-a31e-02b988cd6f35" />
+
+- Log retention can be configured in terms of time and size
 - A segment can be deleted only when it is closed, an active segment is not deleted, even if it meets the criteria for deletion
-- 
+- The retention time is evaluated starting from the last record appended to the segment after it is closed.
+- Even if the retention time has elapsed for the last record, the segment will be deleted only when the thread that periodically does the cleanup is triggered which is configured by `log.retention.check.interval.ms`
+- When this cleanup thread runs, it identifies which segments are eligible for deletion and names those segments with a `.deleted` suffix
+- These segments are then eventually deleted after `log.segment.delete.delay.ms` which is 1 minute by default
+  
