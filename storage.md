@@ -66,4 +66,7 @@
 - Even if the retention time has elapsed for the last record, the segment will be deleted only when the thread that periodically does the cleanup is triggered which is configured by `log.retention.check.interval.ms`
 - When this cleanup thread runs, it identifies which segments are eligible for deletion and names those segments with a `.deleted` suffix
 - These segments are then eventually deleted after `log.segment.delete.delay.ms` which is 1 minute by default
+
+### Important links
+- https://strimzi.io/blog/2021/12/17/kafka-segment-retention/
   
